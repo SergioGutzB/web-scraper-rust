@@ -74,3 +74,82 @@ impl HtmlParser {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample_html() -> &'static str {
+        r#"
+        <html>
+            <head>
+                <title>  Rust Programming  </title>
+                <meta name="description" content="Learn Rust programming language">
+            </head>
+            <body>
+                <h1>Welcome to Rust</h1>
+                <h2>Getting Started</h2>
+                <h3>Installation</h3>
+                <a href="https://rust-lang.org">Official Site</a>
+                <a href="/docs">Documentation</a>
+                <a>Link without href</a>
+            </body>
+        </html>
+        "#
+    }
+
+    #[test]
+    fn test_parse_returns_correct_url() {
+        let html = sample_html();
+        let result = HtmlParser::parse(html, "https://test.com".to_string()).unwrap();
+        assert_eq!(result.url, "https://test.com");
+    }
+
+    #[test]
+    fn test_extract_title() {
+        let html = sample_html();
+        let result = HtmlParser::parse(html, "https://test.com".to_string()).unwrap();
+        assert_eq!(result.title, Some("Rust Programming".to_string()));
+    }
+
+    #[test]
+    fn test_extract_title_missing() {
+        let html = r#"<html><head></head></html>"#;
+        let result = HtmlParser::parse(html, "https://test.com".to_string()).unwrap();
+        assert_eq!(result.title, None);
+    }
+
+    #[test]
+    fn test_extract_meta_description() {
+        let html = sample_html();
+        let result = HtmlParser::parse(html, "https://test.com".to_string()).unwrap();
+        assert_eq!(
+            result.meta_description,
+            Some("Learn Rust programming language".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_headings() {
+        let html = sample_html();
+        let result = HtmlParser::parse(html, "https://test.com".to_string()).unwrap();
+        assert_eq!(result.headings.len(), 3);
+        assert_eq!(result.headings[0].level, "h1");
+        assert_eq!(result.headings[0].text, "Welcome to Rust");
+        assert_eq!(result.headings[1].level, "h2");
+        assert_eq!(result.headings[1].text, "Getting Started");
+        assert_eq!(result.headings[2].level, "h3");
+        assert_eq!(result.headings[2].text, "Installation");
+    }
+
+    #[test]
+    fn test_extract_links_ignores_missing_href() {
+        let html = sample_html();
+        let result = HtmlParser::parse(html, "https://test.com".to_string()).unwrap();
+        assert_eq!(result.links.len(), 2);
+        assert_eq!(result.links[0].href, "https://rust-lang.org");
+        assert_eq!(result.links[0].text, Some("Official Site".to_string()));
+        assert_eq!(result.links[1].href, "/docs");
+        assert_eq!(result.links[1].text, Some("Documentation".to_string()));
+    }
+}
