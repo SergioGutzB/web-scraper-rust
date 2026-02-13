@@ -33,3 +33,69 @@ pub fn write_csv(data: &[PageData], filename: &str) -> Result<()> {
     writer.flush()?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::{Heading, Link};
+
+    fn sample_data() -> Vec<PageData> {
+        vec![
+            PageData {
+                url: "https://example.com".to_string(),
+                title: Some("Example".to_string()),
+                meta_description: Some("An example".to_string()),
+                headings: vec![Heading {
+                    level: "h1".to_string(),
+                    text: "Hello".to_string(),
+                }],
+                links: vec![Link {
+                    href: "https://rust-lang.org".to_string(),
+                    text: Some("Rust".to_string()),
+                }],
+            },
+            PageData {
+                url: "https://test.com".to_string(),
+                title: None,
+                meta_description: None,
+                headings: vec![],
+                links: vec![],
+            },
+        ]
+    }
+
+    #[test]
+    fn test_write_json_creates_file() {
+        let data = sample_data();
+        write_json(&data, "test_1.json").unwrap();
+        let content = std::fs::read_to_string("test_1.json").unwrap();
+
+        assert!(content.contains("https://example.com"));
+        assert!(std::path::Path::new("test_1.json").exists());
+
+        std::fs::remove_file("test_1.json").unwrap();
+    }
+
+    #[test]
+    fn test_write_json_content() {
+        let data = sample_data();
+        write_json(&data, "test_2.json").unwrap();
+        let content = std::fs::read_to_string("test_2.json").unwrap();
+
+        assert!(content.contains("Example"));
+
+        std::fs::remove_file("test_2.json").unwrap();
+    }
+
+    #[test]
+    fn test_write_csv_creates_file() {
+        let data = sample_data();
+        write_csv(&data, "test_1.csv").unwrap();
+        let content = std::fs::read_to_string("test_1.csv").unwrap();
+
+        assert!(content.contains("https://example.com"));
+        assert!(std::path::Path::new("test_1.csv").exists());
+
+        std::fs::remove_file("test_1.csv").unwrap();
+    }
+}
