@@ -1,0 +1,20 @@
+# Rust build artifacts
+/target
+
+# Output files del scraper
+data.json
+data.csv
+output.json
+output.csv
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db

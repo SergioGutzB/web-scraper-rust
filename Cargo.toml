@@ -1,0 +1,26 @@
+[package]
+name = "web-scraper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# HTTP Client (versión blocking/sincrónica)
+reqwest = { version = "0.13", features = ["blocking", "json"] }
+
+# HTML Parser
+scraper = "0.25"
+
+# Serialización
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+csv = "1.4"
+
+# Manejo de errores
+thiserror = "2.0"
+
+# Thread pool
+threadpool = "1.8"
+
+# Opcional: para logging
+log = "0.4"
+env_logger = "0.11"
